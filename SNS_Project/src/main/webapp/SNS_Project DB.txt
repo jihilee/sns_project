@@ -1,0 +1,512 @@
+SNS_Project  : DataBase
+
+[회원가입]
+
+drop sequence mem_seq;
+create sequence mem_seq
+increment by 1
+start with 1
+minvalue 1
+nocache;
+
+
+DROP TABLE members CASCADE CONSTRAINTS;
+create table members( 
+   no number primary key,
+   email varchar2(50) not null unique, --ID대용
+   password varchar2(20) not null,
+   name varchar2(50), 
+   b_date date, -- 생년월일
+   gender varchar2(10), --(man/woman)
+   hp1 varchar2(10),
+   hp2 varchar2(10),
+   hp3 varchar2(10),
+   addr1 varchar2(50),
+   addr2 varchar2(50),
+   addr3 varchar2(50),
+   reg_date date default sysdate,  --가입 날짜
+   --unreg_date date, --탈퇴 날짜
+   profile varchar2(50) default 'profile.png',  -- img
+   background varchar2(50), -- img
+   deactivate number default 0, -- 비활성화(0활성/1비활성)
+   social varchar2(30), --google/kakao/naver
+   save number default 0, -- sgy 추가 (북마크기능)
+   business number default 0, -- (0일반/1비지니스 계정)
+   business_no varchar2(50), --사업자번호(비지니스계정인 경우만 등록됨)
+   intro varchar2(100) --소개
+);
+
+insert into members(no,email,password,name,b_date,gender,hp1,hp2,hp3,addr1,addr2,addr3)
+ values(mem_seq.nextval, 'admin@gmail.com', '1234', '어드민', '910202', 'woman', '010', '1234', '1234', '서울시', '구로구 구로동 12-3','중앙아파트');
+
+insert into members(no,email,password,name,b_date,gender,hp1,hp2,hp3,addr1,addr2,addr3)
+ values(mem_seq.nextval, 'user1@gmail.com', '1234', 'user1', '910202', 'woman', '010', '1234', '1234', '서울시', '구로구 구로동 12-3','중앙아파트');              
+
+insert into members(no,email,password,name,b_date,gender,hp1,hp2,hp3,addr1,addr2,addr3,profile,background,intro)
+ values(mem_seq.nextval, 'hena@gmail.com', '1234', 'hena_xx', '930222', 'woman', '010', '1111', '2222', '서울시', '은평구 증산로 12-3','2층','hena.jpg','bg1.jpg','hena님의 소개입니다'); 
+
+insert into members(no,email,password,name,b_date,gender,reg_date,profile)
+values(mem_seq.nextval,'aaa@gmail.com','1234','jihun','850123','man','2022-09-01','jihun.jpg');
+
+insert into members(no,email,password,name,b_date,gender,reg_date)
+values(mem_seq.nextval,'bbb@gmail.com','1234','nami','950504','woman','2022-09-01');
+
+insert into members(no,email,password,name,b_date,gender,hp1,hp2,hp3,addr1,addr2,addr3,profile)
+ values(mem_seq.nextval, 'alex@naver.com', '1234', 'alex', '970811', 'woman', '010', '1004', '1004', '부산시', '해운대 반여로 7', '22층','alex.jpg');
+
+insert into members(no,email,password,name,b_date,gender,hp1,hp2,hp3,addr1,addr2,addr3,profile,intro)
+ values(mem_seq.nextval, 'james@naver.com', '1234', 'james', '881030', 'man', '010', '3333', '4444', '서울시', '마포구 신촌로 176', '5층','james.jpg','james님의 소개입니다');            
+
+insert into members(no,email,password,name,b_date,gender,reg_date,profile,background,intro)
+values(mem_seq.nextval,'ccc@gmail.com','1234','hyojin','981111','woman','970909','hyojin.jpg','bg2.jpg','hyojin님의 소개입니다');
+
+insert into members(no,email,password,name,b_date,gender,hp1,hp2,hp3,addr1,addr2,addr3,profile,intro)
+ values(mem_seq.nextval, 'riri@naver.com', '1234', 'riri', '970811', 'woman', '010', '1004', '1004', '부산시', '해운대 반여로 7', '22층','riri.jpg','riri님의 소개입니다');
+
+commit;
+
+insert into members(no,email,password,name,b_date,gender,reg_date)
+values(mem_seq.nextval,'aaa@naver.com','1234','에이','850123','man','2022-09-01');
+insert into members(no,email,password,name,b_date,gender,reg_date)
+values(mem_seq.nextval,'bbb@naver.com','1234','비','950504','woman','2022-09-01');
+insert into members(no,email,password,name,b_date,gender,reg_date)
+values(mem_seq.nextval,'ccc@naver.com','1234','씨','981111','man','2022-09-01');
+insert into members(no,email,password,name,b_date,gender,reg_date)
+values(mem_seq.nextval,'ddd@naver.com','1234','디','001216','man','2022-09-01');
+insert into members(no,email,password,name,b_date,gender,reg_date)
+values(mem_seq.nextval,'eee@naver.com','1234','이','010102','man','2022-09-01');
+
+
+insert into members(no,email,password,name,b_date,gender,reg_date)
+values(mem_seq.nextval,'mari@naver.com','1234','백마리','850123','woman','2022-08-10');
+insert into members(no,email,password,name,b_date,gender,reg_date)
+values(mem_seq.nextval,'jihoon@naver.com','1234','천지훈','950504','man','2022-08-20');
+insert into members(no,email,password,name,b_date,gender,reg_date)
+values(mem_seq.nextval,'jooyoung@naver.com','1234','이주영','981111','woman','2022-08-30');
+insert into members(no,email,password,name,b_date,gender,reg_date)
+values(mem_seq.nextval,'moojang@naver.com','1234','사무장','010102','man','2022-08-2');
+insert into members(no,email,password,name,b_date,gender,reg_date)
+values(mem_seq.nextval,'minhyeok@naver.com','1234','서민혁','001216','man','2022-08-12');
+insert into members(no,email,password,name,b_date,gender,reg_date)
+values(mem_seq.nextval,'yejin@naver.com','1234','나예진','010102','woman','2022-08-22');
+
+commit; 
+
+insert into members(no,email,password,name,b_date,gender,reg_date)
+values(mem_seq.nextval,'zzz@naver.com','1234','제트','770707','woman','2021-10-31');
+insert into members(no,email,password,name,b_date,gender,reg_date)
+values(mem_seq.nextval,'yyy@naver.com','1234','와이','770707','woman','2021-12-31');
+insert into members(no,email,password,name,b_date,gender,reg_date)
+values(mem_seq.nextval,'xxx@naver.com','1234','엑스','770707','woman','2021-11-30');
+
+commit;
+
+insert into members(no,email,password,name,b_date,gender,reg_date)
+values(mem_seq.nextval,'iu@naver.com','1234','아이유','020202','woman','2022-07-10');
+
+update members
+set deactivate = 1 
+where no in (5,6,7,8,9,12,15,18);
+
+
+-- 1. 안됨 --
+select gender, reg_date, count(*) as count from members
+group by gender, reg_date
+having reg_date >= '2022-01-01';
+
+-- 2. --
+select gender, month, count(*) as count 
+from (select gender, reg_date, to_char(reg_date,'mm') as month from members
+	 where reg_date >= '2022-05-01') 
+group by gender, month;
+
+--3. 보완(?) --
+select gender, month, nvl(count(*),0) as count 
+from (select gender, reg_date, to_char(reg_date,'yyyy-mm') as month from members
+	 where reg_date >= '2022-05-01') 
+group by gender, month
+having month between '2022-05' and '2022-10'
+order by month;
+
+---------------------------------------------------------------------
+
+[탈퇴한 회원]
+
+drop sequence leave_seq;
+create sequence leave_seq
+increment by 1
+start with 1
+minvalue 1
+nocache;
+
+DROP TABLE leave CASCADE CONSTRAINTS;
+create table leave( 
+   no number primary key,
+   email varchar2(50) not null, --ID대용
+   reg_date date,  --가입 날짜
+   unreg_date date --탈퇴 날짜
+);
+commit;
+
+insert into leave values(un_seq.nextval,'wonbin@gmail.com','2022-07-07','2022-11-02');
+insert into leave values(un_seq.nextval,'jisu@gmail.com','2022-08-08','2022-11-01');
+insert into leave values(un_seq.nextval,'taei@gmail.com','2022-09-09','2022-11-02');
+insert into leave values(un_seq.nextval,'jiyeon@gmail.com','2022-07-07','2022-11-01');
+insert into leave values(un_seq.nextval,'kyumin@gmail.com','2022-10-10','2022-11-02');
+insert into leave values(un_seq.nextval,'haeeun@gmail.com','2022-10-10','2022-11-01');
+insert into leave values(un_seq.nextval,'huidu@gmail.com','2022-06-06','2022-11-02');
+insert into leave values(un_seq.nextval,'nayeon@gmail.com','2022-06-06','2022-11-01');
+
+commit;
+
+---------------------------------------------------------------------
+
+
+[글쓰기] 
+
+
+drop sequence write_seq;
+create sequence write_seq
+increment by 1
+start with 1
+minvalue 1
+nocache;
+
+DROP TABLE write CASCADE CONSTRAINTS;
+create table write( 
+   wno number primary key, --pk
+   no number references members(no) on delete cascade, ---fk (-> 자기 글)
+   contents varchar2(4000), --(varchar2 최대가 4000이래요)
+   video varchar2(1000) default null,
+   image varchar2(200), 
+   scope  varchar2(300),--공개범위
+   upload_date date default sysdate, 
+   location varchar2(100) default null, -- 위치 정보
+   address varchar2(100) default null,
+   f_tag varchar2(300), --친구태그(친구리스트)
+   likes number default 0,--좋아요 (테이블따로)
+   clearance number default 0,---승인 되면 1
+   link varchar2(100) -- 링크
+);
+
+commit;
+
+insert into write values(write_seq.nextval, 2, '여행간다', 'airplane.mp4', null, 'public', sysdate, '김포공항' ,null,'3,4', 0, 0, null);
+insert into write values(write_seq.nextval, 2, '우리고양이', 'cat3.mp4', null, 'onlyFriends', sysdate, '이대역',null,'3', 0, 0, null);
+insert into write values(write_seq.nextval, 2, '우리집 둘째', 'cat4.mp4', null, 'onlyMe', sysdate, '이대역' ,null,null, 0, 0, null);
+insert into write values(write_seq.nextval, 3, '애기', 'baby.mp4', null, 'public', sysdate, '서울시청' ,null,null, 0, 0, null);
+insert into write values(write_seq.nextval, 3, '물 잘먹네', 'cat5.mp4', null, 'onlyFriends', sysdate, '서울시청' ,null,null, 0, 0, null);
+insert into write values(write_seq.nextval, 3, '난리남귀여워', 'dogatbeach.mp4', null, 'onlyMe', sysdate, '해운대' ,null,null, 0, 0, null);
+insert into write values(write_seq.nextval, 4, '고양이귀여워', 'cat1.mp4', null, 'public', sysdate, null ,'경포대',null, 0, 0, null);
+insert into write values(write_seq.nextval, 4, '초보운전', 'drive.mp4', null, 'onlyFriends', sysdate, '제주공항' ,null,'3', 0, 0, null);
+insert into write values(write_seq.nextval, 4, '코끼리네', 'elephant.mp4', null, 'onlyMe', sysdate, '에버랜드' ,null,null, 0, 0, null);
+insert into write values(write_seq.nextval, 5, '좋다', 'gmf2.mp4', null, 'public', sysdate, '올림픽공원' ,null,'4', 0, 0, null);
+insert into write values(write_seq.nextval, 5, '출근길...', 'gotowork.mp4', 'onlyFriends', null, sysdate, '서울역' ,null,null, 0, 0, null);
+insert into write values(write_seq.nextval, 5, '더귀여워', 'cat2.mp4', null, 'onlyMe', sysdate, '광화문역' ,null,null, 0, 0, null);
+
+
+set pageSize 200;
+set lineSize 200;
+col wno for 99;
+col no for 99;
+col contents for a20;
+col video for a20;
+col image for a20;
+col scope for a20;
+col upload_date for a20;
+col location for a20;
+col f_tag for a20;
+ 
+commit;
+---------------------------------------------------------------------
+
+[친구목록]
+
+
+drop sequence flist_seq;
+create sequence flist_seq
+increment by 1
+start with 1
+minvalue 1
+nocache;
+
+
+DROP TABLE friends CASCADE CONSTRAINTS; --회의때 확인(발신/수신 안나눠도 되는건지)
+create table friends( 
+	mno number references members(no) on delete cascade Primary key,--- fk 본인고유번호 -> members table과 연결
+	friends varchar2(1000), --- 수락한 친구들 번호
+	waits varchar2(1000) --- 대기 친구들 번호
+);
+
+insert into friends(mno,friends) values(2,'3,4,5');
+insert into friends(mno,friends) values(3,'2,4,5');
+insert into friends(mno,friends) values(4,'2,3,5');
+insert into friends(mno,friends) values(5,'2,3,4');
+
+commit;
+
+col mno for 99;
+col friends for a9;
+col waits for a9;
+select * from friends;
+---------------------------------------------------------------------
+
+[공지]
+
+drop sequence Nseq;
+create sequence Nseq
+increment by 1
+start with 1
+minvalue 1
+nocache;
+
+
+DROP TABLE notice CASCADE CONSTRAINTS;
+create table notice( 
+	nno number primary key,
+	title varchar2(80) not null, --글제목
+	contents varchar2(1000) not null, -- 글내용
+ 	comments varchar2(300) , -- 댓글(?)
+	readcount number default 0,--조회수
+	nfile varchar2(50), -- 파일이름
+	upload_date date default sysdate --업로드날짜
+);
+commit;
+
+
+---------------------------------------------------------------------
+
+[좋아요] : ?
+drop sequence likes_seq;
+create sequence likes_seq
+increment by 1
+start with 1
+minvalue 1
+nocache;
+
+
+DROP TABLE likes CASCADE CONSTRAINTS; 
+create table likes(
+   likes_no number primary key, --pk
+   mno number references members(no) on delete cascade,  --누가 좋아요했는지
+   wno number references write(wno) on delete cascade, --어떤 게시글인지
+   cno number references comments(cno) on delete cascade --어떤 댓글인지
+);
+
+insert into likes(likes_no, mno, wno,cno) values(likes_seq.nextval,2,1,1);
+
+commit;
+---------------------------------------------------------------------
+--나경 추가
+
+[북마크]
+
+drop sequence book_seq;
+create sequence book_seq
+increment by 1
+start with 1
+minvalue 1
+nocache;
+
+
+DROP TABLE bookmark CASCADE CONSTRAINTS; 
+create table bookmark(
+   bno number primary key, --pk
+   mno number references members(no) on delete cascade,  --누가 좋아요했는지
+   wno number references write(wno) on delete cascade --어떤 게시글인지
+);
+
+commit;
+
+---------------------------------------------------------------------
+
+[신고]
+
+drop sequence report_seq;
+create sequence report_seq
+increment by 1
+start with 1
+minvalue 1
+nocache;
+
+
+DROP TABLE report CASCADE CONSTRAINTS;
+create table report( 
+	rno number primary key,
+	report_mno number, -- 신고한 사람
+	reported_mno number, -- 신고당한 사람
+	wno number references write(wno) on delete cascade, -- 신고당한 게시글의 시퀀스
+	reason varchar2(100) -- 신고이유
+);
+commit;
+--궁금(?) : 신고 당한 사람이 회원 탈퇴를 했을때 관리자쪽에서도 그 신고 기록들이 다 삭제되는게 맞는지 ,,,? => 삭제
+		신고 당한 게시글이 삭제되었을때 관리자쪽에서도 그 신고 기록들이 다 삭제되는건가요?... => 삭제
+--신고한 사람도 있어야 신고한 사람이 여러번 신고를 못하지 않나요??? 
+
+
+
+---------------------------------------------------------------------
+[알림]
+
+drop sequence push_seq;
+create sequence push_seq
+increment by 1
+start with 1
+minvalue 1
+nocache;
+
+
+DROP TABLE push CASCADE CONSTRAINTS;
+create table push(
+	pno number primary key, 
+	read number ,--읽음(1) / 안 읽음(0)
+	code varchar2(30) --친구요청인지, 게시글좋아요인지(?) 
+);
+commit;
+
+---------------------------------------------------------------------
+[댓글]
+
+drop sequence com_seq;
+create sequence com_seq
+increment by 1
+start with 1
+minvalue 1
+nocache;
+
+
+DROP TABLE comments CASCADE CONSTRAINTS;
+create table comments( 
+   cno number primary key,--댓글 시퀀스
+   wno number references write(wno) on delete cascade, -- 게시글 시퀀스
+   mno number references members(no) on delete cascade, -- 회원 시퀀스
+   c_contents varchar2(300) not null,
+   c_upload_date date default sysdate, --게시일
+   ref number default 0, -- 대댓글
+   re_step number default 0,
+   re_level number default 0
+);
+commit;
+
+insert into comments(cno,wno,mno,c_contents,ref) values(com_seq.nextval,1,2,'좋아요',com_seq.currval);
+insert into comments(cno,wno,mno,c_contents,ref) values(com_seq.nextval,1,3,'싫어요',com_seq.currval);
+insert into comments(cno,wno,mno,c_contents,ref) values(com_seq.nextval,2,1,'슬퍼요',com_seq.currval);
+insert into comments(cno,wno,mno,c_contents,ref) values(com_seq.nextval,1,2,'기뻐요',com_seq.currval);
+insert into comments(cno,wno,mno,c_contents,ref) values(com_seq.nextval,2,4,'좋아요',com_seq.currval);
+commit;
+
+---------------------------------------------------------------------
+
+[room]
+	
+--room table
+
+drop sequence room_seq;
+create sequence room_seq
+	increment by 1
+	start with 1 
+	minvalue 1
+	maxvalue 10000000
+	nocache;
+	
+drop table room cascade constraints;
+create table room(
+	no number default 0,
+	room_no number primary key,
+	mno1 number references members(no) on delete cascade,
+	mno2 number references members(no) on delete cascade,
+	d_mno1 number default 0,
+	d_mno2 number default 0,
+	mno1_lastvisit timestamp,
+	mno2_lastvisit timestamp
+	);
+
+	
+[chat]
+
+
+--chat table
+
+drop sequence chat_seq;
+create sequence chat_seq
+	increment by 1
+	start with 1 
+	minvalue 1
+	maxvalue 10000000
+	nocache;
+
+
+drop table chat cascade constraints;
+create table chat(
+	no number primary key,
+	room_no number references room(room_no) on delete cascade,
+	send_mno number references members(no) on delete cascade,
+	read_mno number references members(no) on delete cascade,
+	time timestamp default sysdate,
+	content varchar2(1000) not null
+	);
+
+commit;
+---------------------------------------------------------------------
+	
+[방문자수 (통계)]
+drop sequence visit_seq;
+create sequence visit_seq
+increment by 1
+start with 1
+minvalue 1
+nocache;
+
+DROP TABLE visiters CASCADE CONSTRAINTS;
+create table visiters( 
+	vno number primary key, --pk
+	visit_date date default sysdate, --방문날짜
+	age varchar2(10), --10대~50대
+	cnt number default 0 --몇번
+);
+
+--처음에 홈페이지에서 insert / 한명씩 나이 계산해서 cnt++ 로그인에서 update
+
+-- insert --
+insert into visiters values(visit_seq.nextval,sysdate,'~19',0);
+insert into visiters values(visit_seq.nextval,sysdate,'20~29',0);
+insert into visiters values(visit_seq.nextval,sysdate,'30~39',0);
+insert into visiters values(visit_seq.nextval,sysdate,'40~49',0);
+insert into visiters values(visit_seq.nextval,sysdate,'50~',0);
+insert into visiters values(visit_seq.nextval,sysdate,'all',0);
+commit;
+
+insert into visiters values(visit_seq.nextval,'2022-10-31','~19',0);
+insert into visiters values(visit_seq.nextval,'2022-10-31','20~29',0);
+insert into visiters values(visit_seq.nextval,'2022-10-31','30~39',0);
+insert into visiters values(visit_seq.nextval,'2022-10-31','40~49',0);
+insert into visiters values(visit_seq.nextval,'2022-10-31','50~',0);
+insert into visiters values(visit_seq.nextval,'2022-11-01','all',10);
+
+-- update --
+update visiters 
+set cnt = 1
+where age = '50~' and to_char(visit_date,'yyyy-mm-dd') = '2022-11-01';
+
+update visiters
+set cnt = cnt+1
+where age = 'all';
+
+-- select --
+select cnt from visiters
+where age = 'all';
+
+select last_day(to_date('2022-11-01','yyyy-mm-dd')) from dual;
+
+select cnt from visiters
+where age = 'all' 
+and to_char(visit_date,'yyyy-mm-dd') between '2022-11-01' and last_day(sysdate);
+
+select cnt from visiters
+where age = 'all' 
+and to_char(visit_date,'yyyy-mm-dd') between #{date} and last_day(to_date('2022-11-01','yyyy-mm-dd'))
+
+-- 1. --
+select to_char(visit_date,'yyyy-mm-dd') as visit_date, age, cnt
+from visiters
+where to_char(visit_date,'yyyy-mm-dd') = to_char(sysdate,'yyyy-mm-dd')

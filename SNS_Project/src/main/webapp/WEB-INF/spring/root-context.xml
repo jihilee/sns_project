@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
+	
+	<!-- Root Context: defines shared resources visible to all other web components -->
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName" value="oracle.jdbc.driver.OracleDriver"/>
+		<property name="url" value="jdbc:oracle:thin:@localhost:1521:orcl"/>
+		<property name="username" value="jsp"/>
+		<property name="password" value="jsppw"/>
+	</bean>
+	
+	<bean id="sqlSessionFactoryBean" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"/> <!-- 객체 주입할 때 ref -->
+		<property name="configLocation" value="classpath:/mybatis/SqlMapConfig.xml"/>
+	</bean>
+	<!-- 여러 데이터 베이스 작업을 해야하는데 여러 mapper xml설정을 할 수가 없어 코드는 빼준다	
+		 대신 여러 mapper설정은 SqlMapConfig.xml에서 mappers 태그로 설정해준다 -->
+	
+	<!-- 세번째 객체(bean)에 첫번째 + 두번째 정보가 다 들어가 있다. 세번째Bean을 사용하기 위한 작업들이었다 -->
+	<bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg ref="sqlSessionFactoryBean"/>
+	</bean> 
+	
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"></bean>
+</beans>

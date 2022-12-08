@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+	<typeAliases>
+  		<typeAlias type="write.model.WriteBean" alias="write"/> 
+		<typeAlias type="member.model.MemberBean" alias="MyMember"/>
+		<typeAlias type="friend.model.FriendBean" alias="MyFriend"/>
+		<typeAlias type="write.model.CommentsBean" alias="MyComments"/>
+		<typeAlias type="write.model.BookMarkBean" alias="MyBookMark"/>
+		<typeAlias type="admin.model.SubscriberBean" alias="SubscriberBean"/>
+		<typeAlias type="admin.model.VisiterBean" alias="VisiterBean"/>
+		<typeAlias type="admin.model.LeaveBean" alias="LeaveBean"/>
+		<typeAlias type="admin.model.ReportBean" alias="ReportBean"/>
+		<typeAlias type="event.model.EventBean" alias="MyEvent"/>
+		<typeAlias type="notice.model.NoticeBean" alias="MyNotice"/>
+  	</typeAliases>
+  	
+  	<mappers>
+		<mapper resource="mybatis/write.xml" />
+		<mapper resource="mybatis/member.xml" />
+		<mapper resource="mybatis/friend.xml" />
+		<mapper resource="mybatis/chat.xml" />
+		<mapper resource="mybatis/room.xml" />
+		<mapper resource="mybatis/tag.xml" />
+		<mapper resource="mybatis/visiter.xml" />
+		<mapper resource="mybatis/report.xml" />
+		<mapper resource="mybatis/event.xml"/>
+    	<mapper resource="mybatis/notice.xml"/>
+	</mappers>
+</configuration>

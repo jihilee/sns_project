@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="admin.model.report">
+
+	<!-- 신고리스트 -->
+	<select id="SelectAllReport" resultType="ReportBean">
+		select r.reported_mno, m.name as reported_mname, r.wno, r.cnt
+		from (select reported_mno, wno, count(wno) as cnt
+			  from report
+			  group by reported_mno, wno) r inner join members m
+		on r.reported_mno = m.no
+	</select>
+	
+	<select id="SelectReportMnoAndReason" resultType="ReportBean">
+		select r.report_mno, m.name as report_mname, r.reason
+		from (select * from report where wno = #{wno}) r, members m
+		where r.report_mno = m.no
+	</select>
+	
+	<!-- 신고한 적이 있는지 체크 -->
+	<select id="SelectWnoAndReportMno" resultType="ReportBean">
+		select * from report
+		where wno = #{wno} and report_mno = #{report_mno}
+	</select>
+	
+	<!-- 신고 insert -->
+	<insert id="InsertReport">
+		insert into report
+		values(report_seq.nextval, #{report_mno}, #{reported_mno}, #{wno}, #{reason})
+	</insert>
+	
+	
+</mapper>

@@ -1,0 +1,134 @@
+function detailPost(wno){
+         alert('wno : '+wno)
+         $('input[name="wno"]').val(wno)
+         $('#post').show()
+         $('#updatepost').hide()
+         $('#commentpost').hide()
+         $('input[name="c_contents"]').val('')
+         var str='';
+         
+         $.ajax({
+             url :"detail.wr",
+             data: {wno:wno},
+             type:"post",
+             dataType:"json",
+             success:function(data){
+                //alert('data. length : '+data.length)
+                 $('#allcomments *').remove();
+                
+                for(var i=0;i<data.length;i++){
+                   
+                   var re_step = select_re_step(data[i].cno);
+                     
+                   str +='<tr height="20px">';
+                   str +='<th>'+data[i].name+'</th>';
+                   str +='<td colspan="2">'+data[i].c_contents+'</td>';
+                   str +='<td align="right" style="color: #909090c7;">'+data[i].c_upload_date+'</td>';
+                   str +='<td align="right"><a href="javascript:return false;" style="text-decoration: none;">';
+                   str +='<i id="b_bookedmark${wb.wno }" class="bi bi-bookmark-check-fill"';;
+                   str +='onclick="bookmarkCancle(${wb.wno})" style="display:inline; color: #FFD732;"></i>';
+                   str +='</a></td>';
+                   //str +='<td align="right"><i class="ti-heart"></i></td>';
+                   //str +='<td align="right"><img src="resources/assets/images/heart.png"/></td>';
+                   //<a href="https://www.flaticon.com/free-icons/heart" title="heart icons">Heart icons created by Pixel perfect - Flaticon</a>
+                   str +='<td align="right">';
+                   str +='<div class="dropdown">';
+                   str +='<button type="button" class="btn p-0 dropdown-toggle hide-arrow dropmenu" data-bs-toggle="dropdown">';
+                   str +='<i class="bx bx-dots-vertical-rounded"></i>';
+                   str +='</button>';
+                   str +='<div class="dropdown-menu">';
+                   str +='<button type="button" class="dropdown-item delete" onclick="updateComment('+data[i].cno+','+data[i].wno+',\''+data[i].c_contents+'\')">';
+                   str +='수정 </button>';
+                   str +='<button type="button" class="dropdown-item delete" onclick="deleteComment('+data[i].cno+','+data[i].wno+')">';
+                   str +='삭제 </button>';
+                   str +='</div>';
+                   str +='</div>';
+                   str +='</td>';
+                   str +='</tr>';
+                   str +='<tr id="reply_tr'+data[i].cno+'">';
+                   str +='<td></td>';
+                   str +='<td colspan="4" class="plus-comment"><a onClick="replyComment('+data[i].cno+','+data[i].wno+','+data[i].ref+','+data[i].re_step+','+data[i].re_level+',\''+data[i].name+'\')">댓글달기('+re_step+')</a></td>';
+                   str +='</tr>';
+                   
+
+                }
+                   $('#allcomments').append(str);
+                   
+             },
+             error:function(request,status,error){
+ 			    alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+ 			}
+          })
+          $.ajax({
+             url : "detailPost_img_video.wr",
+             data :{wno : wno},
+             type:"post",
+             dataType:"json",
+             success: function(map){
+                console.log(map.contents)
+                $('#detailcontents').html(map.contents)
+                $('#detailName').html(map.name)
+                $('#detailLocation').html(map.location)
+                $('#detailF_tag').html(map.f_tag)
+                
+                var url = '<%=request.getContextPath()%>/resources/upload/';
+                var vurl = '<%=request.getContextPath()%>/resources/video/';
+                
+                //removeAllchild('#activeImg');
+                if(map.img1 != null){
+                  console.log(map.img1)
+                      $('#activeImg').append('<img class="d-block w-100" alt="First slide" id="img1">');
+                      $('#img1').attr('src',url+map.img1);
+                    }
+                    if(map.img2 != null){
+                       console.log(map.img2)
+                      $('#activeImg').after('<div class="carousel-item" id="itemImg"><img class="d-block w-100" alt="slide" id="img2"></div>');
+                      $('#img2').attr('src',url+map.img2);
+                    }
+                    if(map.img3 != null){
+                       console.log(map.img3)
+                      $('#activeImg').after('<div class="carousel-item" id="itemImg"><img class="d-block w-100" alt="slide" id="img3"></div>');
+                      $('#img3').attr('src',url+map.img3);
+                    }
+                    if(map.img4 != null){
+                      $('#activeImg').after('<div class="carousel-item" id="itemImg"><img class="d-block w-100" alt="slide" id="img4"></div>');
+                      $('#img4').attr('src',url+map.img4);
+                    }
+                    if(map.img1 != null){
+                      $('#detailImg').show();
+                    }
+                 if(map.video != null){
+                      $('#getvideo').attr('src',vurl+map.video);
+                      $('#before_Video').show();
+                    }
+                 
+             }
+          })
+       }
+       
+       
+=================================================================================
+
+
+<select id="Select_OneComment" resultType="write">
+      select z.wno, z.video, z.image, z.contents, z.scope, to_char(z.upload_date,'MM/dd') as upload_date, z.location, z.address, z.f_tag, z.cno, z.mno, z.c_contents, to_char(z.c_upload_date,'MM/dd') as c_upload_date, z.ref, z.re_step, z.re_level, m.name from
+      (select w.wno, w.video, w.image, w.contents, w.scope, w.upload_date, w.location, w.address, w.f_tag,c.cno,c.mno,c.c_contents,c.c_upload_date, c.ref, c.re_step, c.re_level from write w ,comments c 
+      where w.wno=c.wno and w.wno=#{wno} and c.cno=c.ref
+      order by c.cno desc, ref desc, re_step asc) z , members m where z.mno=m.no
+   </select>
+   
+=================================================================================
+
+
+   if(data[i].l_cno == null){//좋아요 X
+	   str +='<td align="right"><a href="javascript:return false;" style="text-decoration: none;">';
+       str +='<i id="detail_emptyHeart'+data[i].wno+','+data[i].cno+'" class=""bi bi-heart"';;
+       str +='onclick="detail_plus_like('+data[i].wno+','+data[i].l_mno+')"></i>';
+       str +='</a></td>';
+   }
+   else{//좋아요 O
+       str +='<td align="right"><a href="javascript:return false;" style="text-decoration: none;">';
+       str +='<i id="detail_b_bookedmark'+data[i].wno+','+data[i].cno+'"class="bi bi-bookmark-check-fill"';;
+       str +='onclick="detail_bookmarkCancle('+data[i].wno+','+data[i].l_mno+')" style="display:inline; color: #FFD732;"></i>';
+       str +='</a></td>';
+   }

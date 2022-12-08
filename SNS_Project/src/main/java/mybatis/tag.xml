@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+	<mapper namespace="tag.model.Tag">
+		<select id="getTagCount" resultType="int">
+			select count(*) from tag where tag_name = #{tag_name}
+		</select>
+		
+		<insert id="insertTag">
+			insert into tag values(tag_seq.nextval,#{tag_name})
+		</insert>
+		
+		<select id="getTagBean" resultType="tag.model.TagBean">
+			select * from tag where tag_name = #{tag_name}
+		</select>
+		
+		<insert id="insertPostTag">
+			insert into post_tag values(#{wno},#{tag_id})
+		</insert>
+		
+		<select id="getPostTag" resultType="tag.model.Post_tagBean">
+			select p.wno, p.tag_id, t.tag_name
+			from post_tag p inner join tag t 
+			on p.tag_id = t.tag_id
+		</select>
+		
+		<select id="getPostNameByWno" resultType="tag.model.Post_tagBean">
+			select p.wno, p.tag_id, t.tag_name
+			from post_tag p inner join tag t 
+			on p.tag_id = t.tag_id and p.wno = #{wno}
+		</select>
+		
+		<delete id="resetTag">
+			delete from post_tag where wno = #{wno}
+		</delete>
+		
+		<insert id="updatePostTag">
+			insert into post_tag values(#{wno},#{tag_id})
+		</insert>
+		
+		<select id="getWnoByClickedTag" resultType="tag.model.Post_tagBean">
+			select p.wno, p.tag_id
+			from post_tag p inner join tag t
+			on p.tag_id = t.tag_id 
+			where t.tag_name = #{tag_name}
+		</select>
+		
+	</mapper>

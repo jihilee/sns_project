@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  <!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="write.model.Write">
+	<insert id="InsertBNwrite" >
+  			insert into write(wno,no,contents,image,scope,upload_date,likes,clearance,link) 
+  			values(write_seq.nextval,#{no},#{contents, jdbcType=VARCHAR},#{image,jdbcType=VARCHAR},#{scope},sysdate,0,0,#{link,jdbcType=VARCHAR})
+  	</insert>
+	<!-- business public -->
+  	<select id="Sel_public" resultType="write">
+  		select m.name,  w.no, w.wno, w.contents,w.image, w.scope, w.upload_date, w.likes,w.link
+		from members m inner join write w
+		on m.no = w.no and w.scope='public' order by wno desc
+  	</select>
+
+	<insert id="InsertWrite">
+		insert into write values(write_seq.nextval,#{no},#{contents,
+		jdbcType=VARCHAR},#{video, jdbcType=VARCHAR},#{image,
+		jdbcType=VARCHAR},
+		#{scope},sysdate,#{location,jdbcType=VARCHAR},#{address,jdbcType=VARCHAR},#{f_tag,
+		jdbcType=VARCHAR}, 0, 0, #{link, jdbcType=VARCHAR})
+	</insert>
+
+	<!-- <select id="GetTimeLineByMemberNo" resultType="write"> select m.name, 
+		m.profile, w.no, w.wno, w.contents, w.video, w.image, w.scope, w.upload_date, 
+		w.location, w.f_tag, w.likes from members m inner join write w on m.no = 
+		w.no and w.scope='public' </select> -->
+
+	<!-- jh update 1115 -->
+	<select id="GetTimeLineByMemberNo" resultType="write">
+		select m.name, m.profile, w.no, w.wno, w.contents, w.video, w.image,
+		w.scope, w.upload_date, w.location, w.f_tag, w.likes, w.link
+		from members m, write w
+		<if test="tag_name != null">
+			, (select p.wno, p.tag_id
+			from post_tag p inner join tag t
+			on p.tag_id = t.tag_id
+			where t.tag_name = #{tag_name}) tt
+		</if>
+		where m.no = w.no and w.scope='public'
+		<if test="tag_name != null">and w.wno = tt.wno  </if>
+	</select>
+	<!-- jh -->
+
+	<!-- jh update 1115 -->
+	<select id="Select_By_onlyMe" resultType="write">
+		select m.name, m.profile, w.no, w.wno, w.contents, w.video, w.image,
+		w.scope, w.upload_date, w.location, w.f_tag, w.likes
+		from members m, write w
+		<if test="tag_name != null">
+			, (select p.wno, p.tag_id
+			from post_tag p inner join tag t
+			on p.tag_id = t.tag_id
+			where t.tag_name = #{tag_name}) tt
+		</if>
+		where m.no=#{no} and m.no = w.no and w.scope='onlyMe'
+		<if test="tag_name != null">and w.wno = tt.wno  </if>
+	</select>
+
+	<select id="Select_By_onlyFriends" resultType="write">
+		select m.name, m.profile, w.no, w.wno, w.contents, w.video, w.image,
+		w.scope, w.upload_date, w.location, w.f_tag, w.likes
+		from members m, write w
+		<if test="tag_name != null">
+			, (select p.wno, p.tag_id
+			from post_tag p inner join tag t
+			on p.tag_id = t.tag_id
+			where t.tag_name = #{tag_name}) tt
+		</if>
+		where m.no=#{no} and m.no = w.no and w.scope='onlyFriends'
+		<if test="tag_name != null">and w.wno = tt.wno  </if>
+	</select>
+
+	<!-- where scope='전체공개' and scope='나만보기' -->
+	<delete id="DelateByWno">
+		delete write where wno = #{wno}
+	</delete>
+
+	<update id="UpdateLikes">
+		update write set likes = likes + 1 where wno = #{wno}
+	</update>
+
+	<select id="GetByWnoForUpdate" resultType="write">
+		select * from write where wno = #{wno}
+	</select>
+
+	<!-- 가영 -->
+
+	<insert id="InsertLikes">
+		insert into likes(likes_no,mno,wno) values(likes_seq.nextval, #{no}, #{wno})
+	</insert>
+
+	<update id="MinusUpdateLikes">
+		update write set likes = likes - 1 where wno = #{wno}
+	</update>
+
+	<delete id="DeleteLikes">
+		delete likes where mno = #{no} and wno = #{wno}
+	</delete>
+
+	<select id="GetLikes" resultType="int">
+		select likes from write where wno = #{wno}
+	</select>
+
+	<update id="UpdateWrite">
+		update write set contents=#{contents,jdbcType=VARCHAR},
+		video=#{video,jdbcType=VARCHAR},
+		image=#{image,jdbcType=VARCHAR}, scope=#{scope,jdbcType=VARCHAR}, location
+		=#{location,jdbcType=VARCHAR},
+		address=#{address,jdbcType=VARCHAR}, f_tag=#{f_tag,jdbcType=VARCHAR}
+		where wno = #{wno}
+	</update>
+
+	<select id="FindLikesByNo" resultType="String">
+		select wno from likes where mno = #{no} order by wno desc
+	</select>
+
+	<select id="GetFriendsNoAndName" resultType="MyMember">
+		select no, name from members where no = #{no}
+	</select>
+
+	<!-- 가영끝 -->
+	<!-- 나경시작 -->
+	<select id="Select_comments" resultType="MyComments">
+		select z.wno, z.cno, z.mno, z.c_contents,to_char(z.c_upload_date,'MM/dd') as
+		c_upload_date, m.name from
+		(select rownum as rank, a.wno,a.cno,a.mno,a.c_contents,a.c_upload_date from
+		(select c.wno,c.cno,c.mno,c.c_contents,c.c_upload_date from write w
+		,comments c
+		where w.wno=c.wno and c.wno=#{wno}
+		order by c.cno desc) a) z , members m where rank &lt; 3 and z.mno=m.no and
+		z.wno=#{wno}
+	</select>
+
+	<insert id="Insert_Comments">
+		insert into comments(cno,wno,mno,c_contents,ref)
+		values(com_seq.nextval,#{wno},#{mno},#{c_contents},com_seq.currval)
+	</insert>
+
+	<select id="Select_newCommentNum" resultType="int">
+		select max(cno) from comments
+	</select>
+
+	<select id="Select_newComment" resultType="MyComments">
+		select c.cno, c.wno,c.mno,c.c_contents,to_char(c.c_upload_date,'MM/dd') as
+		c_upload_date,c.ref, c.re_level, c.re_step, m.name from comments c,
+		members m
+		where c.cno=#{cno} and c.mno=m.no
+	</select>
+
+	<select id="Select_OneComment" resultType="write">
+		select z.wno, z.cno, z.mno, z.c_contents, to_char(z.c_upload_date,'MM/dd')
+		as c_upload_date, z.ref, z.re_step, z.re_level, m.name from
+		(select w.wno, c.cno,c.mno,c.c_contents,c.c_upload_date, c.ref, c.re_step,
+		c.re_level from write w ,comments c
+		where w.wno=c.wno and w.wno=#{wno} and c.cno=c.ref
+		order by c.cno desc, ref desc, re_step asc) z , members m where z.mno=m.no
+	</select>
+
+	<select id="Select_OneWrite_ByWno" resultType="write">
+		select w.*,m.name,m.profile from write w, members m
+		where wno=#{wno} and w.no=m.no
+	</select>
+
+	<select id="Select_re_step" resultType="int">
+		select max(re_step) from comments where ref=#{cno}
+	</select>
+
+	<select id="Select_List_re_step" resultType="MyComments">
+		select c.cno,
+		c.wno,c.mno,c.c_contents,to_char(c.c_upload_date,'MM/dd') as
+		c_upload_date,c.ref, c.re_level, c.re_step, m.name from comments c,
+		members m
+		where c.ref=#{cno} and c.re_step <![CDATA[ <> ]]>
+		0 and c.mno=m.no
+	</select>
+
+	<update id="Update_Restep">
+		update comments
+		set re_step=re_step+1
+		where ref=#{ref} and re_step>#{re_step}
+	</update>
+
+	<insert id="InsertReplyComment">
+		insert into comments(cno,wno,mno,c_contents,ref,re_step,re_level)
+		values(com_seq.nextval,#{wno},#{mno},#{c_contents},#{ref},#{re_step}+1,
+		#{re_level}+1)
+	</insert>
+
+	<delete id="DeleteComment_ByCno">
+		delete comments where cno=#{cno}
+	</delete>
+
+	<update id="UpdateComment_ByCno">
+		update comments
+		set c_contents=#{c_contents}
+		where cno=#{cno}
+	</update>
+
+	<select id="Check_Likes_ByCno" resultType="int">
+		select likes_no from likes where mno=#{no} and wno=#{wno} and cno=#{cno}
+	</select>
+
+	<insert id="Detail_plusLike">
+		insert into likes values(likes_seq.nextval,#{no},#{wno},#{cno})
+	</insert>
+
+	<delete id="Detail_cancleLike">
+		delete likes where mno=#{no} and wno=#{wno} and cno=#{cno}
+	</delete>
+
+	<!-- detailPost -->
+
+	<!-- 북마크 -->
+	<insert id="Insert_BookMark">
+		insert into bookmark values(book_seq.nextval,#{mno},#{wno})
+	</insert>
+
+	<delete id="Delete_BookMark">
+		delete bookmark
+		where mno=#{mno} and wno=#{wno}
+	</delete>
+
+	<select id="FindBookMarkByNo" resultType="String">
+		select wno from bookmark where mno=#{no}
+	</select>
+
+	<!-- 나경끝 -->
+
+	<select id="GetFriendsForTagByMno" resultType="String">
+		select friends from friends where mno = #{no}
+	</select>
+
+
+	<select id="GetFriendsNameByFno" resultType="String">
+		select m.name from members m where m.no in
+		(select REGEXP_SUBSTR(friends,'[^,]+', '1', #{i})
+		from friends f where f.mno = #{no})
+	</select>
+
+	<!-- jh -->
+	<select id="getMaxWno" resultType="String">
+		select max(wno) from write where no=#{no}
+	</select>
+	
+	<!-- 오늘 게시글 수 -->
+	<select id="TodayWrite" resultType="int">
+		select count(*) as cnt 
+		from write
+		where to_char(upload_date,'yyyy-mm-dd') = to_char(sysdate,'yyyy-mm-dd')
+	</select>
+	
+	<!-- 전체 게시글 수 -->
+	<select id="TotalWrite" resultType="int">
+		select count(*) as cnt 
+		from write
+	</select>
+
+</mapper>

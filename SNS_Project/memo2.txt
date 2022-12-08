@@ -1,0 +1,62 @@
+detailPost에서 사진이랑 동영상이 같이 나오는경우
+답글달기에서 그냥 댓글 달기 전화 안되는 것
++
+마이 프로필 : 글쓴거 list불러오기
+메인 피드 : scope 분류
+메인 피드- 게시글 수정 : scope 목록 수정
+   
+insert into friends(mno,friends) values(2,'3,4');
+insert into friends(mno,friends) values(3,'4,5');
+
+
+   WNO  NO SCOPE
+--- --- --------------------
+  5   2 onlyFriends
+  6   2 public
+  7   2 onlyMe
+
+insert into friends(mno,friends) values(2,'3,4');
+insert into friends(mno,friends) values(3,'4,5');
+
+insert into write values(write_seq.nextval, 2, '하이', null, null, 'public', sysdate, null ,null,null, 0);
+insert into write values(write_seq.nextval, 2, '친구만 보기 게시글', null, null, 'onlyFriends', sysdate, null ,null,null, 0);
+insert into write values(write_seq.nextval, 3, '안녕하세요', null, null, 'onlyMe', sysdate, null ,null,null, 0);
+insert into write values(write_seq.nextval, 3, '안녕', null, null, 'public', sysdate, null ,null,null, 0);
+insert into write values(write_seq.nextval, 6, '친구없는 외톨이', null, null, 'public', sysdate, null ,null,null, 0);
+insert into write values(write_seq.nextval, 6, '시크릿 게시글', null, null, 'onlyMe', sysdate, null ,null,null, 0);
+
+2번이 놔야할 것 : '하이'/'친구만 보기 게시글'/'안녕하세요'/'안녕'/'친구없는 외톨이'
+3번이 보여야할 것 : '안녕하세요'/'안녕'/'친구없는 외톨이'
+6번이 보여야할 것 : '하이'/'안녕'/'친구없는 외톨이'
+   
+<select id="GetTimeLineByMemberNo" resultType="write">
+    select m.name,  w.no, w.wno, w.contents, w.video, w.image, w.scope, w.upload_date, w.location, w.f_tag, w.likes
+	from members m inner join write w
+	on m.no = w.no and scope='public' and scope='onlyMe' order by wno desc
+	
+	select no,wno,name,contents from
+	(select m.name,  w.no, w.wno, w.contents
+	from members m, write w
+	where m.no = w.no and w.scope='public') where no=6 and scope='
+</select>
+   
+조건 1: scope = "public"
+조건 2: scope= "onlyMe" -> mno = 자기 것
+조건 3: scope ="onlyFriends" -> 친구 리스트를 불러와서 같이 onlyFriends 로 되어있는 게시물
+
+   
+친구리스트를 불러와서
+for문 돌리면서
+그 친구들의 게시글 list를 둘러보면서
+scope가 onlyFriends인 게시물만 가져온다..
+
+전체공개도 다가져온다
+scope="public"
+
+scope="onlyMe"
+
+
+
+   
+   
+    

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  
+  <mapper namespace="event.model.EventBean" >
+  
+       <select id="GetTotalCount" resultType="int">
+		select count(*) from event
+		<if test="whatColumn == 'title'">
+			where title like #{keyword}
+		</if>
+		
+	</select>
+	
+	<select id="SelectLists" resultType="MyEvent">
+		select num, title , writer , eventdate , eventImage , write , readcount 		        
+		from (select rownum as rank, num, title , writer , eventdate , eventImage , write , readcount 
+		from (select num, title , writer , eventdate , eventImage , write , readcount 
+		from event order by title desc, eventdate asc )) 
+		
+		<if test="whatColumn == 'title'">
+			where title like #{keyword}
+		</if>
+		
+		order by eventdate desc
+	</select>
+	
+	<update id="UpdateReadCount"  >
+<!-- 	update event 
+		set title=#{title}, writer=#{writer}, 
+		eventdate=#{eventdate},eventImage=#{eventImage}, 
+		write=#{write},readcount=#{readcount} 
+		where num=#{num} -->
+		update event set readcount=readcount+1 where num=#{num}
+	
+	</update>
+	
+	
+	<select id="selectEventByNum" resultType="Myevent">
+	select * from event
+	where num= #{num}
+	
+	
+	</select>
+	
+	
+	<select id="SelectArticle" resultType="Myevent">
+	
+	select * from event
+	where num= #{num}
+	
+	</select>
+	
+
+    
+	
+  
+	<insert id="InsertEvent" >
+  		insert into event
+  		values(event_seq.nextval,#{title},#{writer},TO_CHAR(SYSDATE, 'YYYY-MM-DD'),#{eventImage,jdbcType=INTEGER},#{write},#{readcount})
+  	</insert>
+	
+	
+	
+	
+	
+	
+	<select id="TitleCheck" resultType="int">
+		select count(*) from event 
+		where title=#{title}
+	</select>
+	
+	<select id="GetEvent" resultType="MyEvent">
+		select * from event
+		where num = #{num}
+	</select>
+	
+	<update id="updateEvent">
+		update event 
+		set title=#{title}, writer=#{writer}, 
+		eventdate=#{eventdate}, eventImage=#{eventImage}, 
+		 write=#{write}, readcount=#{readcount} 
+		where num=#{num}
+	</update>
+	
+	<delete id="DeleteEvent">
+  		delete from event where num = #{num}
+  	</delete>
+  
+  
+     <delete id="eventDaoDelete">
+        delete from event where num = #{num}
+     
+     
+     </delete>
+  
+  
+  
+  
+  
+  
+  
+  
+  </mapper>

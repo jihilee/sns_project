@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  
+  <mapper namespace="notice.model.NoticeBean" >
+  
+      <select id="GetTotalCount" resultType="int">
+		select count(*) from notice
+		<if test="whatColumn == 'title'">
+			where title like #{keyword}
+		</if>
+		
+	</select>
+	
+
+	
+	<select id="SelectLists" resultType="MyNotice">
+		select num, title , contents , readcount , nfile , upload_date 		        
+		from (select rownum as rank, num, title , contents ,  readcount , nfile , upload_date 
+		from (select num, title , contents ,  readcount , nfile , upload_date 
+		from notice order by title desc, upload_date asc )) 
+		
+		<if test="whatColumn == 'title'">
+			where title like #{keyword}
+		</if>
+		
+		order by upload_date desc
+	</select>
+  
+ 
+  
+  
+  	<update id="UpdateReadCount"  >
+
+		update notice set readcount=readcount+1 where num=#{num}
+	
+	</update>
+	
+	
+	<select id="SelectnoticeByNum" resultType="MyNotice">
+	select * from notice
+	where num= #{num}
+	
+	
+	</select>
+	
+	
+	<select id="SelectArticle" resultType="MyNotice">
+	
+	select * from notice
+	where num= #{num}
+	
+	</select>
+	
+
+    
+	
+  
+	<insert id="Insertnotice" >
+  		insert into notice
+  		values(Nseq.nextval,#{title},#{contents},#{readcount},#{nfile},TO_CHAR(SYSDATE, 'YYYY-MM-DD'))
+  	</insert>
+	
+	
+	
+	<select id="TitleCheck" resultType="int">
+		select count(*) from notice 
+		where title=#{title}
+	</select>
+	
+	<select id="Getnotice" resultType="MyNotice">
+		select * from notice
+		where num= #{num}
+	</select>
+	
+	<update id="Updatenotice">
+		update notice 
+		set title=#{title}, contents=#{contents}, 
+		 readcount=#{readcount}, 
+		 nfile=#{nfile}, upload_date=#{upload_date} 
+		where num=#{num}
+	</update>
+	
+	<delete id="Deletenotice">
+  		delete from notice where num = #{num}
+  	</delete>
+  
+  
+     <delete id="noticeDaoDelete">
+        delete from notice where num = #{num}
+     
+     
+     </delete>
+  
+  
+  
+  
+  </mapper>

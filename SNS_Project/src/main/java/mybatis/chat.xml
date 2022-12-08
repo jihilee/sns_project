@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+	<mapper namespace="chat.model.Chat">
+	
+		<select id="getAllChatListByRoomNo" resultType="chat.model.ChatBean">
+			select c.no, c.room_no, c.send_mno, c.read_mno, m1.name as m1_name, m2.name as m2_name, m1.profile as m1_profile, m2.profile as m2_profile,
+					to_char(time,'yyyy-MM-dd HH24:mi') as time, 
+					to_char(time,'yyyy-MM-dd') as chatday, 
+					to_char(time,'HH24:mi') as chattime, 
+					c.content,
+					r.mno1_lastvisit, r.mno2_lastvisit
+			from chat c, members m1, members m2, room r
+			where m1.no = c.send_mno and c.room_no = #{room_no} and m2.no = c.read_mno and r.room_no = c.room_no
+			order by no
+		</select>
+	
+		<select id="getRoomMember" resultType="chat.model.ChatBean">
+			select r.room_no, r.mno1 as send_mno, r.mno2 as read_mno, m1.name as m1_name, m2.name as m2_name
+	        from room r, members m1, members m2
+	        where room_no=#{room_no} and m1.no = r.mno1 and m2.no = r.mno2
+	        and (m1.no=#{no} or m2.no=#{no})
+		</select>
+		
+		<insert id="sendMsg">
+			insert into chat(no,room_no,send_mno, read_mno, time,content) values(chat_seq.nextval, #{room_no},#{send_mno},#{read_mno},sysdate, #{content}) 
+		</insert>
+		
+		<delete id="delMsg">
+			delete from chat where no = #{no}
+		</delete>
+	</mapper>

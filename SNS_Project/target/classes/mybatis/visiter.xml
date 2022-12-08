@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="admin.model.visiters">
+
+	<!-- 통계 : 오늘 방문자수 (나이대별로) -->
+	<select id="TodayAge" resultType="VisiterBean">
+		select to_char(visit_date,'yyyy-mm-dd') as visit_date, age, cnt
+		from visiters
+		where to_char(visit_date,'yyyy-mm-dd') = to_char(sysdate,'yyyy-mm-dd')
+		and age != 'all'
+	</select>
+
+	<!-- 오늘 방문자수 -->
+	<select id="TodayVisiter" resultType="int">
+		select cnt from visiters
+		where age = 'all' and to_char(visit_date,'yyyy-mm-dd') = to_char(sysdate,'yyyy-mm-dd')
+	</select>
+	
+	<!-- 이번달 방문자수 -->
+	<select id="MonthVisiter" resultType="int">
+		select cnt from visiters
+		where age = 'all' 
+		and to_char(visit_date,'yyyy-mm-dd') between #{date} and last_day(sysdate)
+	</select>
+	
+	<!-- 방문자수 insert -->
+	<insert id="InsertVisiter">
+		insert into visiters values(visit_seq.nextval,sysdate,#{age},0)
+	</insert>
+	
+	<!-- 방문자수 insert 하기 전에 확인 -->
+	<select id="SysdateVisiter" resultType="VisiterBean">
+		select * from visiters
+		where to_char(visit_date,'yyyy-mm-dd') = to_char(sysdate,'yyyy-mm-dd')
+	</select>
+	
+	<!-- 방문자수 update -->
+	<update id="UpdateAllVisiter">
+		update visiters
+		set cnt = cnt+1
+		where age = 'all' and to_char(visit_date,'yyyy-mm-dd') = to_char(sysdate,'yyyy-mm-dd')
+	</update>
+
+	<update id="UpdateAgeVisiter">
+		update visiters
+		set cnt = cnt+1
+		where age = #{age} and to_char(visit_date,'yyyy-mm-dd') = to_char(sysdate,'yyyy-mm-dd')
+	</update>
+
+	<!-- 방문자수 관련 그래프 -->
+	<select id="YearMonthVisiter" resultType="VisiterBean">
+		select * from visiters
+		where age = 'all'
+		and to_char(visit_date,'yyyy-mm-dd') between #{date} and last_day(#{date})
+		order by visit_date
+	</select>
+	
+	<!-- 어제 방문자수 -->
+	<select id="YesterdayVisiter" resultType="Integer">
+		select cnt from visiters
+		where age = 'all' and to_char(visit_date,'yyyy-mm-dd') = #{yesterday}
+	</select>
+
+	<!-- 이번달 최저 방문자수 -->
+	<select id="MinVisiter" resultType="int">
+		select min(cnt) from visiters
+		where age = 'all'
+		and to_char(visit_date,'yyyy-mm-dd') between trunc(sysdate,'month') and last_day(sysdate)
+	</select>
+	
+	<!-- 이번달 최고 방문자수 -->
+	<select id="MaxVisiter" resultType="int">
+		select max(cnt) from visiters
+		where age = 'all'
+		and to_char(visit_date,'yyyy-mm-dd') between trunc(sysdate,'month') and last_day(sysdate)
+	</select>
+	
+</mapper>

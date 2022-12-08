@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+	<mapper namespace="room.model.Room">
+		
+		<select id="getAllRoomListByNo" resultType="chat.model.ChatBean">
+			select b.no, b.room_no, a.send_mno, a.read_mno, b.time, a.content, c.m1_name, c.m2_name, 
+			c.m1_profile, c.m2_profile, c.d_mno1, c.d_mno2, c.mno1_lastvisit, c.mno2_lastvisit
+			from
+			(select * from chat) a,
+			(select distinct room_no, max(c.no) as no, max(c.time) as time
+				from chat c inner join members m 
+				on (m.no = c.send_mno or m.no = c.read_mno) and m.no=#{no}
+				group by room_no) b,
+			(select r.no, r.room_no, r.mno1, m1.name as m1_name, r.mno2, r.mno1_lastvisit, r.mno2_lastvisit,
+					m2.name as m2_name, m1.profile as m1_profile, m2.profile as m2_profile, 
+					r.d_mno1, r.d_mno2
+				from room r, members m1, members m2
+				where r.mno1 = m1.no and r.mno2 = m2.no
+				and (m1.no=#{no} or m2.no=#{no})) c
+			where a.no = b.no and a.room_no = b.room_no and c.room_no = b.room_no
+		</select>
+		
+		<insert id="insertRoom">
+			insert into room(no,room_no,mno1, mno2, d_mno1, d_mno2) values(0, room_seq.nextval, #{mno1}, #{mno2},0,0)
+		</insert>
+	
+		<select id="getRoomBymno" resultType="room.model.RoomBean">
+			select * from room where (mno1 = #{mno1} and mno2 = #{mno2}) or (mno1 = #{mno2} and mno2 = #{mno1})
+		</select>
+		
+		<select id="getRoomByRoomno" resultType="room.model.RoomBean">
+			select * from room where room_no = #{room_no}
+		</select>
+		
+		<update id="delRoomByMno1">
+			update room set d_mno1=1 where mno1=#{mno1} and room_no = #{room_no}
+		</update>
+		
+		<update id="delRoomByMno2">
+			update room set d_mno2=1 where mno2=#{mno2} and room_no = #{room_no}
+		</update>
+		
+		<update id="updateDelRoom">
+			update room set d_mno1=0, d_mno2=0 where room_no=#{room_no}
+		</update>
+		
+		<update id="updateVisitDate1">
+			update room set mno1_lastvisit=sysdate where room_no = #{room_no} and mno1 = #{mno1}
+		</update>
+		<update id="updateVisitDate2">
+			update room set mno2_lastvisit=sysdate where room_no = #{room_no} and mno2 = #{mno2}
+		</update>
+	</mapper>

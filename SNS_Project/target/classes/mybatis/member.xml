@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="member.model.MemberDao">
+
+	<!-- 회원가입 -->
+	<insert id="RegisterMember">
+		insert into
+		members(no,email,password,name,b_date,gender,hp1,hp2,hp3,addr1,addr2,addr3,business,business_no)
+		values(mem_seq.nextval, #{email}, #{password}, #{name}, #{b_date},
+		#{gender}, #{hp1}, #{hp2}, #{hp3},
+		#{addr1}, #{addr2}, #{addr3}, #{business}, #{business_no})
+	</insert>
+
+	<select id="EmailDuplCheck" resultType="int">
+		select count(*) from
+		members where email=#{inputemail}
+	</select>
+
+	<!-- 회원리스트 -->
+	<select id="GetAllMembers" resultType="MyMember">
+		select * from members 
+		where no > 1
+		order by no
+	</select>
+
+	<delete id="DeleteMember">
+		delete members where no=#{no}
+	</delete>
+
+	<!-- 로그인 -->
+	<select id="Login" resultType="MyMember">
+		select * from members where
+		email=#{email} and password=#{password}
+	</select>
+
+	<!-- 마이프로필 -->
+	<update id="UpdateBackground">
+		update members set background=#{background} where
+		no=#{no}
+	</update>
+
+	<update id="UpdateProfile">
+		update members set profile=#{profile} where no=#{no}
+	</update>
+
+	<select id="GetMemberByNo" resultType="MyMember">
+		select * from members
+		where no=#{no}
+	</select>
+
+	<update id="UpdateIntro">
+		update members set intro=#{intro} where no=#{no}
+	</update>
+
+	<!-- 회원 정보 수정 -->
+	<select id="CheckEmailPassword" resultType="int">
+		select count(*) from
+		members where no=#{no} and password=#{password}
+	</select>
+
+	<update id="ModifyMember">
+		update members set name=#{name},
+		password=#{password}, b_date=#{b_date},
+		hp1=#{hp1}, hp2=#{hp2}, hp3=#{hp3}, addr1=#{addr1}, addr2=#{addr2},
+		addr3=#{addr3}
+		where no=#{no}
+	</update>
+
+	<update id="DeactivateMember">
+		update members set deactivate=1 where no=#{no} and
+		password=#{password}
+	</update>
+
+	<!--북마크 -->
+	<select id="Select_BookMarks" resultType="write">
+		select c.wno,c.no,
+		c.contents,c.video,c.image,c.scope,c.upload_date,c.location,c.address,c.f_tag,m.no,m.email,m.name,m.profile
+		from
+		(select w.wno,w.no,
+		w.contents,w.video,w.image,w.scope,w.upload_date,w.location,w.address,w.f_tag,w.likes
+		from
+		(select * from bookmark where mno=#{no})
+		b, write w where b.wno =
+		w.wno) c, members m where c.no = m.no
+	</select>
+
+	<!-- 내가 쓴 게시글 -->
+	<select id="Select_MyWrite" resultType="write">
+		select m.name, w.no, w.wno, w.contents, w.video, w.image, w.scope,
+		w.upload_date, w.location, w.f_tag, w.likes, w.link
+		from members m inner join write w
+		on m.no=#{no} and m.no = w.no
+		order by w.no desc
+	</select>
+
+	<select id="Select_mywrite_public" resultType="write">
+      select m.name,m.profile,  w.no, w.wno, w.contents, w.video, w.image, w.scope, w.upload_date, w.location, w.f_tag, w.likes
+      from members m inner join write w
+      on m.no = w.no and m.no=#{no} and w.scope='public'
+</select>
+	
+	<!-- 통계 : 월별 가입자수 (성별로) -->
+	<select id="MonthlyGender" resultType="SubscriberBean">
+		select gender, year_month, count(*) as count 
+		from (select gender, reg_date, to_char(reg_date,'yyyy-mm') as year_month from members
+			  where reg_date >= #{date}) 
+		group by gender, year_month
+		order by year_month
+	</select>
+	
+	<!-- 활성화/비활성화 회원리스트 -->
+	<select id="GetMembersByDeactivate" resultType="MyMember">
+		select * from members
+		where deactivate = #{deactivate} and no > 1
+	</select>
+	
+	<!-- 탈퇴한 회원리스트 -->
+	<select id="GetLeaveMembers" resultType="LeaveBean">
+		select * from leave
+		order by no
+	</select>
+	
+	<!-- 오늘 가입자수 -->
+	<select id="TodayMember" resultType="int">
+		select count(*) as cnt from members
+		where to_char(reg_date,'yyyy-mm-dd') = to_char(sysdate,'yyyy-mm-dd') and no > 1
+	</select>
+	
+	<!-- 총 가입자수 -->
+	<select id="TotalMember" resultType="int">
+		select count(*) as cnt from members
+		where no > 1
+	</select>
+
+	<!-- 오늘 탈퇴자수 -->
+	<select id="TodayLeave" resultType="int">
+		select count(*) as cnt from leave
+		where to_char(unreg_date,'yyyy-mm-dd') = to_char(sysdate,'yyyy-mm-dd')
+	</select>
+	
+	<!-- 총 탈퇴자수 -->
+	<select id="TotalLeave" resultType="int">
+		select count(*) as cnt from leave
+	</select>
+	
+	<!-- 가입자수 관련 그래프 -->
+   <select id="YearMonthMember" resultType="MyMember">
+      select d.reg_date , nvl(m.cnt,0) as cnt
+      from (select reg_date, count(*) as cnt 
+           from (select trunc(reg_date,'dd') as reg_date 
+               from members
+               where no > 1)   
+           where reg_date between #{date} and last_day(#{date})
+           group by reg_date
+           order by reg_date) m right outer join 
+          (SELECT TO_DATE(#{date},'YYYY-MM-DD')+(ROWNUM-1) AS reg_date
+           FROM DUAL
+           CONNECT BY LAST_DAY(#{date}) - TO_DATE(#{date},'YYYY-MM-DD') + 1 >= LEVEL) d
+      on m.reg_date = d.reg_date
+      order by d.reg_date
+   </select>
+	
+	<!-- 가입자수 (성별) -->
+	<select id="TotalGenderMember" resultType="MyMember">
+		select gender, count(gender) as cnt
+		from members
+		where no > 1
+		group by gender
+	</select>
+	
+	<!-- 어제 가입자수 -->
+	<select id="YesterdayMember" resultType="int">
+		select count(*) as cnt from members
+		where to_char(reg_date,'yyyy-mm-dd') = #{yesterday} and no > 1
+	</select>
+	
+	<!-- 이번달 최저 가입자수 -->
+	<select id="MinMember" resultType="int">
+		select min(cnt) as cnt
+		from (select reg_date, count(*) as cnt
+			  from (select trunc(reg_date,'dd') as reg_date from members
+					where no > 1 and to_char(reg_date,'yyyy-mm-dd') between trunc(sysdate,'month') and last_day(sysdate))
+			  group by reg_date
+			  order by reg_date)
+	</select>
+	
+	<!-- 이번달 최고 가입자수 -->
+	<select id="MaxMember" resultType="int">
+		select max(cnt) as cnt
+		from (select reg_date, count(*) as cnt
+			  from (select trunc(reg_date,'dd') as reg_date from members
+					where no > 1 and to_char(reg_date,'yyyy-mm-dd') between trunc(sysdate,'month') and last_day(sysdate))
+			  group by reg_date
+			  order by reg_date)
+	</select>
+	
+	<!-- 오늘 여성, 남성 가입자수 -->
+	<select id="GenderMember" resultType="int">
+		select count(gender) as cnt
+		from (select trunc(reg_date,'dd') as reg_date, gender
+			  from members
+			  where no > 1)
+		where gender = #{gender}
+		and to_char(reg_date,'yyyy-mm-dd') = to_char(sysdate, 'yyyy-mm-dd')
+	</select>
+	
+	<!-- 탈퇴자수 관련 그래프 -->
+   <select id="YearMonthLeaver" resultType="LeaveBean">
+      select d.unreg_date, nvl(l.cnt,0) as cnt
+      from (select unreg_date, count(*) as cnt
+           from (select trunc(unreg_date,'dd') as unreg_date 
+                   from leave)
+           where to_char(unreg_date,'yyyy-mm-dd') between #{date} and last_day(#{date})
+           group by unreg_date
+           order by unreg_date) l right outer join 
+           (SELECT TO_DATE(#{date},'YYYY-MM-DD')+(ROWNUM-1) AS unreg_date
+           FROM DUAL
+           CONNECT BY LAST_DAY(#{date}) - TO_DATE(#{date},'YYYY-MM-DD') + 1 >= LEVEL) d
+      on l.unreg_date = d.unreg_date
+      order by d.unreg_date
+   </select>
+	
+	<!-- 어제 탈퇴자수 -->
+	<select id="YesterdayLeave" resultType="int">
+		select count(*) as cnt from leave
+		where to_char(unreg_date,'yyyy-mm-dd') = #{yesterday}
+	</select>
+	
+	<!-- 이번달 최저 탈퇴자수 -->
+	<select id="MinLeaver" resultType="int">
+		select min(cnt) as cnt
+		from (select unreg_date, count(*) as cnt
+			  from (select trunc(unreg_date,'dd') as unreg_date from leave
+					where to_char(unreg_date,'yyyy-mm-dd') between trunc(sysdate,'month') and last_day(sysdate))
+			  group by unreg_date
+			  order by unreg_date)
+	</select>
+	
+	<!-- 이번달 최고 탈퇴자수 -->
+	<select id="MaxLeaver" resultType="int">
+		select max(cnt) as cnt
+		from (select unreg_date, count(*) as cnt
+			  from (select trunc(unreg_date,'dd') as unreg_date from leave
+					where to_char(unreg_date,'yyyy-mm-dd') between trunc(sysdate,'month') and last_day(sysdate))
+			  group by unreg_date
+			  order by unreg_date)
+	</select>
+	
+	<!-- 카카오 가입자수 -->
+	<select id="KakaoMember" resultType="int">
+		select count(*) as cnt
+		from members
+		where social = 'kakao'
+	</select>
+	
+	
+	<!-- 11/21 박이랑 -->
+	<!-- 소셜 로그인 -->
+	<select id="GetMemberByEmail" resultType="MyMember">
+		select * from members where email=#{email}
+	</select>
+	
+	<insert id="RegisterMemberBySocial">
+		insert into members(no,email,name,social) values(mem_seq.nextval, #{email}, #{name}, #{social})
+	</insert>
+	
+	<!-- 아이디 비번 찾기 -->
+	<update id="UpdatePassword">
+		update members set password=#{password} where email=#{email}
+	</update>
+	
+	<select id="FindId" resultType="MyMember">
+		select * from members where name=#{name} and hp1=#{hp1} and hp2=#{hp2} and hp3=#{hp3}
+	</select>
+	
+	<select id="FindPassword" resultType="MyMember">
+		select * from members where email=#{email} and name=#{name} and hp1=#{hp1} and hp2=#{hp2} and hp3=#{hp3}
+	</select>
+	
+	<!-- 탈퇴회원 추가 -->
+	<insert id="InsertLeave">
+		insert into leave values(leave_seq.nextval, #{email}, #{reg_date}, sysdate)
+	</insert>
+
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
